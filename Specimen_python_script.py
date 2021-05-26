@@ -1,7 +1,8 @@
 #! /usr/bin/env python3.7
 
+#usage python NCBI_voucher_species <NCBI_accession_numbers_file.txt> > NCBI_species.txt
 from Bio import Entrez
-
+import sys
 inFile = sys.argv[1]
 
 
