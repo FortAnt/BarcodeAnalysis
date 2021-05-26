@@ -7,6 +7,8 @@ This pipeline was tested on Ubuntu 20.04
 **1) Preparation of alignments**
 
 Download sequences from NCBI, to obtain "barcode.fasta"
+For example using *Ulva [organism] AND rbcL [gene] AND plastid [filter]* in the NCBI (https://www.ncbi.nlm.nih.gov/nuccore/),
+then click "send to" > "file" > "fasta" > "create file". One can apply a length filter to omit full organellar genomes.
 
 **1.1) For alignments retaining all fasta headers from NCBI, and removing un-characterised sequences containing Genus "sp." :**
   
