@@ -90,7 +90,7 @@ Alternatively, if gaps are present within the sequence, manually replace gaps in
 
 •	Species delimitation and obtain the percentage of agreement in species names using R.
 
->R script available here: GMYC_delimitation_script
+>[R script available here](https://github.com/FortAnt/BarcodeAnalysis/blob/main/GMYC_delimitation_script.R)
 
 •	Visualise trees using Figtree, available here: http://tree.bio.ed.ac.uk/software/figtree/.
 
