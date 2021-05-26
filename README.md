@@ -2,7 +2,7 @@
 
 This repository contains the scripts and command lines used to generate phylogenetic trees and GMYC species delimitation analysis.
 
-This pipeline was tested on Ubuntu 20.04
+This pipeline was tested on Ubuntu 20.04, R version 3.5.1 and Python version 3.7
 
 **1) Preparation of alignments**
 
