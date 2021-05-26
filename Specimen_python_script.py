@@ -2,8 +2,11 @@
 
 from Bio import Entrez
 
-# Read the accessions from a file
-accessions_file = 'accession_numbers_barcodes.txt'
+inFile = sys.argv[1]
+
+
+#read accessions from input file
+accessions_file = inFile
 with open(accessions_file) as f:
     ids = f.read().split('\n')
 
