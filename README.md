@@ -36,11 +36,11 @@ Obtain accession numbers:
  
 Run python script to obtain "organism" metadata for each accessions, then sort accessions alphabetically:
 
->python Species_FromNCBI.py NCBI_vouchers.txt | sort > species_NCBI.txt
+>python [Species_FromNCBI.py](https://github.com/FortAnt/BarcodeAnalysis/blob/main/Species_FromNCBI.py) NCBI_vouchers.txt | sort > species_NCBI.txt
 
 Reformat python hits by concatenating accession number and species name, separated by "_":
 
->sed -e "s|\t|_|g" species_NCBI.txt | sed -e "s/ /_/g" > renamed_vouchers.txt
+>sed -e "s|\t|\_|g" species_NCBI.txt | sed -e "s/ \/_/g" > renamed_vouchers.txt
 
 Get full fasta headers, sort alphabetically:
 
@@ -50,7 +50,7 @@ Concatenate fasta headers and renamed header file
 
 >paste -d"\t" full_fasta_headers.txt renamed_vouchers.txt > renamed_headers.txt
 
-Rename fasta headers with new headers, using seqkit:
+Rename fasta headers with new headers, using seqkit (https://github.com/shenwei356/seqkit):
 
 >seqkit replace -p "(.+)" -r '{kv}' -k ./renamed_headers.txt ./barcode.fasta > barcode.renamed.fasta
 
@@ -58,7 +58,7 @@ Rename fasta headers with new headers, using seqkit:
 
 Align sequences, using mafft available here: https://mafft.cbrc.jp/alignment/software/
 
->mafft –adjustdirection –maxiterate 1000 --threads X barcode.renamed.fasta > barcode.renamed.aln.fasta
+>mafft --adjustdirection --maxiterate 1000 --threads X barcode.renamed.fasta > barcode.renamed.aln.fasta
 
 Remove positions with more than X unknowns, using trimal available here: http://trimal.cgenomics.org/downloads
 
@@ -104,8 +104,8 @@ Alternatively, if gaps are present within the sequence, manually replace gaps in
 
 •	Use the entrez python API, available here: https://biopython.org/wiki/Download to retrieve metadata from the accession numbers. Scripts are included in this repository  and were adapted from Juan Manuel Berros contribution to https://www.biostars.org/p/221662/.
 
->python GPS_coordinates_FromNCBI.py accession_numbers_barcodes.txt > NCBI_GPS.txt
+>python [GPS_coordinates_FromNCBI.py](https://github.com/FortAnt/BarcodeAnalysis/blob/main/Specimen_FromNCBI.py) accession_numbers_barcodes.txt > NCBI_GPS.txt
 
->python Specimen_FromNCBI.py accession_numbers_barcodes.txt > NCBI_specimens.txt
+>python [Specimen_FromNCBI.py](https://github.com/FortAnt/BarcodeAnalysis/blob/main/Specimen_FromNCBI.py) accession_numbers_barcodes.txt > NCBI_specimens.txt
 
 •	Use R (or excel) for merging GPS, specimens, species and remove duplicate specimens. Then select species of interest and plot distribution using the Rworldmap package in R (https://www.rdocumentation.org/packages/rworldmap/versions/1.3-6)
