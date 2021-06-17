@@ -6,13 +6,14 @@ This pipeline was tested on Ubuntu 20.04, R version 3.5.1 and Python version 3.7
 The python scripts need to be manually modified to add your personal NCBI registered email address.
 
 **1) Preparation of alignments**
-
+======
 Download sequences from NCBI, to obtain "barcode.fasta"
 For example using *Ulva [organism] AND rbcL [gene] AND plastid [filter]* in the NCBI (https://www.ncbi.nlm.nih.gov/nuccore/),
 then click "send to" > "file" > "fasta" > "create file". One can apply a length filter to omit full organellar genomes.
 
 **1.1) For alignments retaining all fasta headers from NCBI, and removing un-characterised sequences containing Genus "sp." :**
-  
+------
+This keeps all headers (including description of the sequence).\
 Replace spaces by "_" from voucher names, required for downstream analysis:
 
 >sed -i "s/ /_/g" barcode.fasta
@@ -30,13 +31,14 @@ Extract sequences matching the NO_Genus_sp.IDs list using samtools, available he
 >xargs samtools faidx barcode.fasta < NO_Genus_sp.IDs > barcode_noGenussp.fasta
 
 **1.2) For Alignments with fasta headers in the format: NCBIaccessionnumber_Genus_species, retaining all species names, even uncharacterized ones**
- 
+------
+This leads to much cleaner fasta headers, retaining only Accession number and species information, delimited by "_".\
 Obtain accession numbers:
 
 >grep '>\S*' barcode.fasta | awk '{print $1}' | sed -e "s/>//g" > NCBI_vouchers.txt
  
-Run python script to obtain "organism" metadata for each accessions, then sort accessions alphabetically:
-
+Run python script to obtain "organism" metadata for each accessions, then sort accessions alphabetically:\
+It requires the entrez python API, available here: https://biopython.org/wiki/Download to retrieve metadata from the accession numbers.
 >python [Species_FromNCBI.py](https://github.com/FortAnt/BarcodeAnalysis/blob/main/Species_FromNCBI.py) NCBI_vouchers.txt | sort > species_NCBI.txt
 
 Reformat python hits by concatenating accession number and species name, separated by "_":
@@ -47,7 +49,7 @@ Get full fasta headers, sort alphabetically:
 
 >grep '>' barcode.fasta | sed -e "s/>//g" | sort > full_fasta_headers.txt
 
-Concatenate fasta headers and renamed header file
+Concatenate fasta headers and renamed headers file
 
 >paste -d"\t" full_fasta_headers.txt renamed_vouchers.txt > renamed_headers.txt
 
@@ -56,8 +58,11 @@ Rename fasta headers with new headers, using seqkit (https://github.com/shenwei3
 >seqkit replace -p "(.+)" -r '{kv}' -k ./renamed_headers.txt ./barcode.fasta > barcode.renamed.fasta
 
 **1.3) Alignment**
-
+------
 Align sequences, using mafft available here: https://mafft.cbrc.jp/alignment/software/
+
+The --adjustdirection helps as some NCBI sequences are reverse complement compared to others.\
+The --maxiterate 1000 is optional but is used for alignments containing gaps or between very divergent sequences.
 
 >mafft --adjustdirection --maxiterate 1000 --threads X barcode.renamed.fasta > barcode.renamed.aln.fasta
 
@@ -76,7 +81,7 @@ If no gaps expected between sequences (such as COI or rbcL barcode), replace gap
 Alternatively, if gaps are present within the sequence, manually replace gaps in 5’ and 3’ end in the alignment directly in Jalview, available here: https://www.jalview.org/
 
 **2) Phylogenetic analysis**
-
+======
 •	Use jModeltest2 for selecting best evolutionary model. Download here: https://github.com/ddarriba/jmodeltest2/releases
 
 •	Select best evolutionary model based on AIB and/or BIC score.
@@ -98,7 +103,7 @@ Alternatively, if gaps are present within the sequence, manually replace gaps in
 •	Visualise trees using Figtree, available here: http://tree.bio.ed.ac.uk/software/figtree/.
 
 **3) Distribution analysis**
-
+=====
 •	Obtain the list of accession numbers from the alignment, removing ">" and retaining only accession numbers
 
 >grep '>'  barcode.renamed.trimmed_gtXseqY.aln.fasta | sed "s/\..*//g" | sed "s/>//g" > accession_numbers_barcodes.txt
@@ -110,3 +115,29 @@ Alternatively, if gaps are present within the sequence, manually replace gaps in
 >python [Specimen_FromNCBI.py](https://github.com/FortAnt/BarcodeAnalysis/blob/main/Specimen_FromNCBI.py) accession_numbers_barcodes.txt > NCBI_specimens.txt
 
 •	Use R (or excel) for merging GPS, specimens, species and remove duplicate specimens. Then select species of interest and plot distribution using the Rworldmap package in R (https://www.rdocumentation.org/packages/rworldmap/versions/1.3-6)
+
+
+
+**How to modify metadata on your own NCBI records**
+=====
+When nomenclature changes for your species of interest, of if one's own record was misannotated, it is important to modify your records with the latest appropriate nomenclature. This avoids the amplification of misannotations in the database.
+
+Is is incredibly simple to [update the metadata associated with a NCBI record](https://www.ncbi.nlm.nih.gov/genbank/update/#:~:text=All%20update%20files%20should%20be,to%20update%20an%20existing%20record)
+
+To do so, from the email account associated with your NCBI submissions, send an email to gb-admin@ncbi.nlm.nih.gov, with as attachment a **tab-delimited** text file containing in the first column the accession numbers (the column is named acc. num.), and the other columns containing the metadata to correct.
+
+For example, to modify the "organism" information of some of my vouchers that were wrongly annotated as U. laetevirens, the text file contained:
+
+
+acc. num. organism\
+MT160559  Ulva lacinulata\
+MT160599  Ulva lacinulata\
+MT160596  Ulva lacinulata\
+MT160544  Ulva lacinulata\
+MT160614  Ulva lacinulata\
+MT160549  Ulva lacinulata\
+MT160548  Ulva lacinulata\
+MT160551  Ulva lacinulata
+
+
+To modify additional metadata information such as strain name, cultivar, GPS coordinates, one can add as many columns to the text file as metadata to modify. [Here](https://www.ncbi.nlm.nih.gov/genbank/mods_fastadefline/) is the list of source modifiers of the NCBI.
